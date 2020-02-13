@@ -641,88 +641,89 @@ describe('autoupdate', function() {
           err.message += ' (while running initial autoupdate)';
           return done(err);
         }
-
         // do initial update/creation of table with fk
         ds.createModel(orderTest_schema_v1.name, orderTest_schema_v1.properties, orderTest_schema_v1.options);
-        ds.autoupdate(function(err) {
-          if (err) {
-            err.message += ' (while updating OrderTest schema v1)';
-            return done(err);
-          }
-          ds.discoverModelProperties('order_test', function(err, props) {
-            if (err) return done(err);
-            // validate that we have the correct number of properties
-            assert.equal(props.length, 3);
-
-            // get the foreign keys for order_test
-            ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeys) {
+        setTimeout(function() {
+          ds.autoupdate(function(err) {
+            if (err) {
+              err.message += ' (while updating OrderTest schema v1)';
+              return done(err);
+            }
+            ds.discoverModelProperties('order_test', function(err, props) {
               if (err) return done(err);
+              // validate that we have the correct number of properties
+              assert.equal(props.length, 3);
 
-              // validate that the foreign key exists and points to the right column
-              assert(foreignKeys);
-              assert.equal(foreignKeys.length, 1);
-              assert.equal(foreignKeys[0].pkColumnName, 'id');
-              assert.equal(foreignKeys[0].pkTableName, 'customer_test3');
-              assert.equal(foreignKeys[0].fkColumnName, 'customerId');
-              assert.equal(foreignKeys[0].fkName, 'fk_ordertest_customerId');
+              // get the foreign keys for order_test
+              ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeys) {
+                if (err) return done(err);
 
-              // update and add another fk
-              ds.createModel(orderTest_schema_v2.name, orderTest_schema_v2.properties, orderTest_schema_v2.options);
-              ds.autoupdate(function(err) {
-                if (err) {
-                  err.message += ' (while updating OrderTest schema v2)';
-                  return done(err);
-                }
-                ds.discoverModelProperties('order_test', function(err, props) {
-                  if (err) return done(err);
-                  // validate that we have the correct number of properties
-                  assert.equal(props.length, 4);
+                // validate that the foreign key exists and points to the right column
+                assert(foreignKeys);
+                assert.equal(foreignKeys.length, 1);
+                assert.equal(foreignKeys[0].pkColumnName, 'id');
+                assert.equal(foreignKeys[0].pkTableName, 'customer_test3');
+                assert.equal(foreignKeys[0].fkColumnName, 'customerId');
+                assert.equal(foreignKeys[0].fkName, 'fk_ordertest_customerId');
 
-                  // get the foreign keys for order_test
-                  ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeysUpdated) {
+                // update and add another fk
+                ds.createModel(orderTest_schema_v2.name, orderTest_schema_v2.properties, orderTest_schema_v2.options);
+                ds.autoupdate(function(err) {
+                  if (err) {
+                    err.message += ' (while updating OrderTest schema v2)';
+                    return done(err);
+                  }
+                  ds.discoverModelProperties('order_test', function(err, props) {
                     if (err) return done(err);
-                    // validate that the foreign keys exist and point to the new column
-                    assert(foreignKeysUpdated);
-                    assert.equal(foreignKeysUpdated.length, 1);
-                    assert.equal(foreignKeysUpdated[0].pkColumnName, 'id');
-                    assert.equal(foreignKeysUpdated[0].pkTableName, 'customer_test2');
-                    assert.equal(foreignKeysUpdated[0].fkColumnName, 'customerId');
-                    assert.equal(foreignKeysUpdated[0].fkName, 'fk_ordertest_customerId');
+                    // validate that we have the correct number of properties
+                    assert.equal(props.length, 4);
 
-                    // create multiple fks on object
-                    ds.createModel(orderTest_schema_v3.name, orderTest_schema_v3.properties,
-                      orderTest_schema_v3.options);
-                    ds.autoupdate(function(err) {
-                      if (err) {
-                        err.message += ' (while updating OrderTest schema v3)';
-                        return done(err);
-                      }
-                      // get the foreign keys for order_test
-                      ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeysMulti) {
-                        if (err) return done(err);
-                        assert(foreignKeysMulti);
-                        assert.equal(foreignKeysMulti.length, 2);
+                    // get the foreign keys for order_test
+                    ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeysUpdated) {
+                      if (err) return done(err);
+                      // validate that the foreign keys exist and point to the new column
+                      assert(foreignKeysUpdated);
+                      assert.equal(foreignKeysUpdated.length, 1);
+                      assert.equal(foreignKeysUpdated[0].pkColumnName, 'id');
+                      assert.equal(foreignKeysUpdated[0].pkTableName, 'customer_test2');
+                      assert.equal(foreignKeysUpdated[0].fkColumnName, 'customerId');
+                      assert.equal(foreignKeysUpdated[0].fkName, 'fk_ordertest_customerId');
 
-                        // remove fk
-                        ds.createModel(orderTest_schema_v4.name, orderTest_schema_v4.properties,
-                          orderTest_schema_v4.options);
-                        ds.autoupdate(function(err) {
-                          if (err) {
-                            err.message += ' (while updating OrderTest schema v4)';
-                            return done(err);
-                          }
-                          ds.discoverModelProperties('order_test', function(err, props) {
-                            if (err) return done(err);
+                      // create multiple fks on object
+                      ds.createModel(orderTest_schema_v3.name, orderTest_schema_v3.properties,
+                        orderTest_schema_v3.options);
+                      ds.autoupdate(function(err) {
+                        if (err) {
+                          err.message += ' (while updating OrderTest schema v3)';
+                          return done(err);
+                        }
+                        // get the foreign keys for order_test
+                        ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeysMulti) {
+                          if (err) return done(err);
+                          assert(foreignKeysMulti);
+                          assert.equal(foreignKeysMulti.length, 2);
 
-                            // validate that we have the correct number of properties
-                            assert.equal(props.length, 4);
-
-                            // get the foreign keys for order_test
-                            ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeysEmpty) {
+                          // remove fk
+                          ds.createModel(orderTest_schema_v4.name, orderTest_schema_v4.properties,
+                            orderTest_schema_v4.options);
+                          ds.autoupdate(function(err) {
+                            if (err) {
+                              err.message += ' (while updating OrderTest schema v4)';
+                              return done(err);
+                            }
+                            ds.discoverModelProperties('order_test', function(err, props) {
                               if (err) return done(err);
-                              assert(foreignKeysEmpty);
-                              assert.equal(foreignKeysEmpty.length, 0);
-                              done();
+
+                              // validate that we have the correct number of properties
+                              assert.equal(props.length, 4);
+
+                              // get the foreign keys for order_test
+                              ds.connector.discoverForeignKeys('order_test', {}, function(err, foreignKeysEmpty) {
+                                if (err) return done(err);
+                                assert(foreignKeysEmpty);
+                                assert.equal(foreignKeysEmpty.length, 0);
+                                done();
+                              });
                             });
                           });
                         });
@@ -733,7 +734,7 @@ describe('autoupdate', function() {
               });
             });
           });
-        });
+        }, 6000);
       });
     });
   });
