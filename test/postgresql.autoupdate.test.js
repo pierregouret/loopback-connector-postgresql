@@ -372,9 +372,11 @@ describe('autoupdate', function() {
           return done(err);
         }
       });
-      done();
+      //done();
     });
-
+    afterEach(function(cb){
+      ds.adapter.dropTable(['product_test', 'customer_test', 'customer_test2', 'customer_test3', 'order_test'],cb);
+    })
     it('should create foreign keys', function(done) {
       // ds.createModel(orderTest_schema_v1.name, orderTest_schema_v1.properties, orderTest_schema_v1.options);
       // ds.autoupdate(function(err) {
@@ -473,7 +475,7 @@ describe('autoupdate', function() {
             if (err) return done(err);
             assert(foreignKeysEmpty);
             assert.equal(foreignKeysEmpty.length, 0);
-          done();
+            done();
           });
         });
       });
