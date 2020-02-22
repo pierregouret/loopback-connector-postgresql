@@ -361,7 +361,7 @@ describe('autoupdate', function() {
   });
 
   describe.only('foreign key constraint. Should create, update, and delete foreign keys', function() {
-    before(function(done) {
+    beforeEach(function(done) {
       ds.createModel(product_schema.name, product_schema.properties, product_schema.options);
       ds.createModel(customer2_schema.name, customer2_schema.properties, customer2_schema.options);
       ds.createModel(customer3_schema.name, customer3_schema.properties, customer3_schema.options);
